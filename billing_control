@@ -1,0 +1,65 @@
+package pos;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author kanishka
+ */
+public class billing_controls {
+    
+            Connection conn = db_connect.connect();
+    
+//SEARCH ITEM     
+public  ResultSet searchQuery(String plu_code) throws SQLException{
+
+    String pre = ("SELECT * FROM `item_master` where plu_code ='"+plu_code+"'");
+    PreparedStatement pst = conn.prepareStatement(pre);
+        
+    ResultSet rs = pst.executeQuery();
+    
+        return rs;
+      
+    }          
+
+//TO GET THE RECEIPTNO
+     public int getReceiptno()throws SQLException{
+         
+         int count=0;
+         
+        String pre = ("SELECT max(receiptno) FROM `pos_mas`;");
+        PreparedStatement pst = conn.prepareStatement(pre);
+        ResultSet rs = pst.executeQuery();
+        rs.next();
+         count = rs.getInt(1);
+         count = count+1;
+         return count;   
+        }
+     
+       //TO GET THE SEQ NUMBER
+    public int seqCount()throws SQLException{
+    
+        String pre = ("SELECT count(*) FROM `tmp_det`;");
+        PreparedStatement pst = conn.prepareStatement(pre);
+        ResultSet rs = pst.executeQuery();
+        rs.next();
+        int count = rs.getInt(1);
+        return count;   
+        }
+     
+     //ADD ITEMS TO THE BILL
+    private void insertItems(int receiptno,int seqCount, String plucode,String desc, String qty, String price)throws SQLException{
+        
+        String pre = ("INSERT INTO `tmp_det`(`receiptno`, `seq_no`, `plu_code`, `decription`, `qty`, `price`, `status`) VALUES ("+receiptno+","+seqCount+","+plucode+",'"+desc+"',"+qty+","+price+",'VALID')");
+        PreparedStatement pst = conn.prepareStatement(pre);
+        pst.execute(); 
+        pst.close();
+        
+    
+    }
+     
+}
